@@ -7,14 +7,24 @@ import {
   PlusCircleIcon,
   ShoppingCartIcon,
   SearchIcon,
+  HeartIcon
 } from "@heroicons/react/outline";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Tooltip from "./Tooltip";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../lib/firebase";
+import Image from "next/image";
+import { toast } from "react-toastify";
+import router from "next/router";
+
+import { signOut } from "firebase/auth";
+import Profile from "../public/images/default_profile.png";
 
 const Navbar = () => {
   const [isMenuClicked, setIsMenuClicked] = useState(false);
   const [isAccountClicked, setIsAccountClicked] = useState(false);
+  const [user] = useAuthState(auth);
 
   const List = [
     {
@@ -32,6 +42,19 @@ const Navbar = () => {
       name: "Log Out",
     },
   ];
+
+  const Signout = () => {
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful.
+        router.push("/Login");
+        toast.success("User signed out successfully");
+      })
+      .catch((error) => {
+        // An error happened.
+        toast.error("Error in signing out of the application");
+      });
+  };
 
   return (
     <div className="flex items-center fixed top-0 left-0 z-50 w-screen h-[3.5rem] border-gray-500 border-b-[1px] bg-white">
@@ -98,7 +121,7 @@ const Navbar = () => {
                     <div className="py-1" role="none">
                       <a
                         href="#"
-                        class="text-gray-700 block px-4 py-2 text-sm"
+                        className="text-gray-700 block px-4 py-2 text-sm"
                         role="menuitem"
                         tabindex="-1"
                         id="menu-item-0"
@@ -107,7 +130,7 @@ const Navbar = () => {
                       </a>
                       <a
                         href="#"
-                        class="text-gray-700 block px-4 py-2 text-sm"
+                        className="text-gray-700 block px-4 py-2 text-sm"
                         role="menuitem"
                         tabindex="-1"
                         id="menu-item-2"
@@ -120,16 +143,24 @@ const Navbar = () => {
               </Tooltip>
             </li>
             <li>
-              <Tooltip tooltipText="Cart">
-                <Link href="/Cart">
-                  <ShoppingCartIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600" />
+              <Tooltip tooltipText="Wishlist">
+                <Link href="/Wishlist">
+                  <HeartIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600" />
                 </Link>
               </Tooltip>
             </li>
             {/* Profile */}
             <li>
-              <UserCircleIcon
+              {/* <UserCircleIcon
                 className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600"
+                onClick={() => setIsAccountClicked(!isAccountClicked)}
+              /> */}
+              <Image
+                src={user ? user.photoURL : Profile}
+                width={32}
+                height={32}
+                className="rounded-full cursor-pointer"
+                alt="profile"
                 onClick={() => setIsAccountClicked(!isAccountClicked)}
               />
               {isAccountClicked && (
@@ -143,24 +174,23 @@ const Navbar = () => {
                   <div className="py-1" role="none">
                     <a
                       href="#"
-                      class="text-gray-700 block px-4 py-2 text-sm"
+                      class="text-gray-700 block px-4 py-2 text-sm cursor-pointer"
                       role="menuitem"
                       tabindex="-1"
                       id="menu-item-1"
                     >
                       Account settings
                     </a>
-                    <form method="POST" action="#" role="none">
-                      <button
-                        type="submit"
-                        className="text-gray-700 block w-full text-left px-4 py-2 text-sm"
-                        role="menuitem"
-                        tabindex="-1"
-                        id="menu-item-3"
-                      >
-                        Sign out
-                      </button>
-                    </form>
+                    <button
+                      type="submit"
+                      className="text-gray-700 block w-full text-left px-4 py-2 text-sm cursor-pointer"
+                      role="menuitem"
+                      tabindex="-1"
+                      id="menu-item-3"
+                      onClick={Signout}
+                    >
+                      Sign out
+                    </button>
                   </div>
                 </div>
               )}

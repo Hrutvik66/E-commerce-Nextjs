@@ -7,18 +7,23 @@ import { LockClosedIcon } from "@heroicons/react/solid";
 //toastify
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 //firebase
 import {
   signInWithPopup,
   auth,
   provider,
   signInWithEmailAndPassword,
+  db
 } from "../lib/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { setDoc,doc } from "firebase/firestore";
+//React-firebase-hooks
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const Login = () => {
+  //router
   const router = useRouter();
+  //react-firebase-hook
+  const [user, loading, error] = useAuthState(auth);
   //React States
   const [userData, setUserData] = useState({
     email: "",
@@ -125,6 +130,7 @@ const Login = () => {
     signInWithPopup(auth, provider)
       .then((result) => {
         result &&
+          setData() &&
           router.push("/") &&
           toast.success("User Loged In successfully 🎉🎉");
       })
@@ -133,6 +139,14 @@ const Login = () => {
         const errorMessage = error.message;
         console.log(errorCode, errorMessage);
       });
+  };
+
+  const setData = async () => {
+    await setDoc(doc(db, "users", user?.uid), {
+      email: user?.email,
+      photoURL: user?.photoURL,
+      userName: user?.displayName,
+    });
   };
   return (
     <div className="flex items-center justify-center h-screen p-5">

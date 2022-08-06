@@ -1,10 +1,21 @@
+//React
 import { useEffect, useState } from "react";
+//React-firebase-hook
 import { useAuthState } from "react-firebase-hooks/auth";
-import { toast } from "react-toastify";
-import { auth } from "../lib/firebase";
+//toast
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+// firebase
+import { auth,db } from "../lib/firebase";
+//nextjs
 import router from "next/router";
+import Link from "next/link";
+import Image from "next/image";
+//components
 import Grid from "../components/Grid";
-import { db } from "../lib/firebase";
+import Navbar from "../components/Navbar";
+import Spinner from "../components/Spinner"
+//firestore
 import {
   doc,
   getDoc,
@@ -13,15 +24,15 @@ import {
   updateDoc,
   arrayRemove,
 } from "firebase/firestore";
-import Link from "next/link";
-import Image from "next/image";
-import Navbar from "../components/Navbar";
+//HeroIcon
 import { CloudIcon } from "@heroicons/react/outline";
 
 const Wishlist = ({ items }) => {
-  const [user, loading, error] = useAuthState(auth);
+  const [user] = useAuthState(auth);
   const [wishlist, setWishlist] = useState([]);
   const [wishlistData, setWishlistData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     const getData = async () => {
@@ -38,7 +49,7 @@ const Wishlist = ({ items }) => {
 
   useEffect(() => {
     const getData = async () => {
-      if (wishlist.length > 0) {
+      if (wishlist?.length > 0) {
         let data = [];
 
         items.filter((product) => {
@@ -52,6 +63,7 @@ const Wishlist = ({ items }) => {
       }
     };
     getData();
+    setLoading(false);
   }, [wishlist]);
 
   const removeItem = async (id) => {
@@ -59,23 +71,24 @@ const Wishlist = ({ items }) => {
     await updateDoc(ref, {
       cart: arrayRemove(id),
     });
+    toast.success("Item removed from wishlist");
     router.reload(window.location.pathname);
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (!user) Router.push("/Login");
+  if (loading) return <Spinner />;
+  if (!user) router.push("/Login");
 
   return (
     <div
-      className={`p-[5rem] bg-gray-200 ${
-        wishlistData.length < 4 ? "h-screen" : "h-full"
+      className={`p-[1rem] pt-[5rem] md:p-[5rem] bg-gray-200 ${
+        wishlistData?.length < 4 ? "h-screen" : "h-full"
       } ${
-        wishlist.length > 0 ? "" : "flex items-center justify-center"
+        wishlist?.length > 0 ? "" : "flex items-center justify-center"
       } overflow-y-auto space-y-3`}
     >
       <Navbar />
-      {wishlist.length > 0 ? (
-        <div>
+      {wishlist?.length > 0 ? (
+        <div className="space-y-4">
           <h1 className="font-bold text-2xl">Wishlist</h1>
           <Grid>
             {wishlistData.map((post) => {
@@ -121,6 +134,7 @@ const Wishlist = ({ items }) => {
           <p className="font-bold text-5xl">No items in wishlist</p>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };

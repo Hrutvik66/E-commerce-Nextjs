@@ -1,15 +1,23 @@
-import React, { useEffect } from "react";
+// React
+import React, { useEffect,useState } from "react";
+//firestore
 import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+//Firebase
+import { db,auth } from "../../lib/firebase";
+//Nextjs
 import Image from "next/image";
 import router from "next/router";
 import Head from "next/head";
-import { useState } from "react";
+//Components
 import HorizontalGrid from "../../components/HorizontalGrid";
 import Navbar from "../../components/Navbar";
+//HeroIcon
 import { ChatAlt2Icon, HeartIcon } from "@heroicons/react/outline";
-import { auth } from "../../lib/firebase";
+//React-firebase-hooks
 import { useAuthState } from "react-firebase-hooks/auth";
+//toast
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Product = ({ item, seller }) => {
   const [link, setLink] = useState("");
@@ -31,7 +39,7 @@ const Product = ({ item, seller }) => {
   }, [user]);
 
   useEffect(() => {
-    wishlist.some((element) => {
+    wishlist?.some((element) => {
       if (element === item.id) {
         setIsWishlisted(true);
       }
@@ -48,7 +56,7 @@ const Product = ({ item, seller }) => {
     try {
       if (!user) {
         toast.error("Please Login first");
-        Router.push("/");
+        router.push("/Login");
       } else {
         const ref = doc(db, "users", item.user);
         await updateDoc(ref, {
@@ -58,9 +66,13 @@ const Product = ({ item, seller }) => {
       }
     } catch (error) {
       console.log(error);
-      setError("Error in adding to cart. Please try again later.");
+      toast.error("Error in adding to cart. Please try again later.");
     }
   };
+
+  const chatWithSeller = () => {
+    
+  }
 
   return (
     <div
@@ -190,6 +202,7 @@ const Product = ({ item, seller }) => {
           )}
         </div>
       </div>
+      <ToastContainer/>
     </div>
   );
 };

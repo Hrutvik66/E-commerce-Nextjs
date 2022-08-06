@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 //Hero icons
 import { LockClosedIcon } from "@heroicons/react/solid";
 //toastify
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 //firebase
 import {
@@ -34,6 +34,11 @@ const Login = () => {
     passwordMessage: "",
   });
   const [remember, setRemember] = useState(false);
+
+  useEffect(() => {
+    
+    toast.error("Please Login first");
+   },[])
 
   //* Validations
 
@@ -142,10 +147,11 @@ const Login = () => {
   };
 
   const setData = async () => {
-    await setDoc(doc(db, "users", user?.uid), {
-      email: user?.email,
-      photoURL: user?.photoURL,
-      userName: user?.displayName,
+    const data = user;
+    await setDoc(doc(db, "users", data?.uid), {
+      email: user.email,
+      photoURL: user.photoURL,
+      userName: user.displayName,
     });
   };
   return (
@@ -227,6 +233,7 @@ const Login = () => {
           </button>
         </div>
       </div>
+      <ToastContainer/>
     </div>
   );
 };

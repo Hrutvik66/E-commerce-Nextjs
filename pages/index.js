@@ -4,6 +4,10 @@ import Navbar from "../components/Navbar";
 import HorizontalGrid from "../components/HorizontalGrid";
 import { useState } from "react";
 
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import Link from "next/link";
 
 import { collection, getDocs } from "firebase/firestore";
@@ -57,6 +61,7 @@ const Home = ({ items, Types }) => {
           );
         })}
       </main>
+      <ToastContainer/>
     </div>
   );
 };

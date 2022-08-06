@@ -30,7 +30,7 @@ const Home = ({ items, Types }) => {
                   return (
                     <Link href={`/Product/${post.id}`} key={post.title}>
                       <div
-                        className="bg-white rounded-lg space-y-2 max-w-[15rem] min-w-[15rem] md:max-w-[20rem] pb-5 h-[19rem] md:h-[22rem] hover:ring-2 ring-gray-400 ring-offset-2 ring-offset-gray-300"
+                        className="bg-white rounded-lg space-y-2 max-w-[15rem] min-w-[15rem] md:max-w-[20rem] pb-5 h-[19rem] md:h-[22rem] hover:ring-2 ring-gray-400 ring-offset-2 ring-offset-gray-300 cursor-pointer"
                         key={post}
                       >
                         <Image

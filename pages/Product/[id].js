@@ -99,15 +99,14 @@ const Product = ({ item, seller }) => {
                     <span className="ml-2 md:flex-[1.5]">Wishlist</span>
                   </button>
                 ) : (
-                  <button
-                    className="flex items-center justify-center text-green-400 p-3 ring-2  ring-green-400 rounded-md cursor-default"
-                  >
+                  <button className="flex items-center justify-center text-green-400 p-3 ring-2  ring-green-400 rounded-md cursor-default">
                     <HeartIcon className="md:w-full h-8 text-green-400 stroke-[1px] md:flex-[0.5]" />
                     <span className="ml-2 md:flex-[1.5]">Wishlisted</span>
                   </button>
                 )}
                 <button
-                  className="flex items-center justify-center border-[2px] border-black hover:bg-black hover:text-white p-1 px-3  transition-hover duration-1000 ease-in-out rounded-md" /*onClick={purchase}*/
+                  className="flex items-center justify-center border-[2px] border-black hover:bg-black hover:text-white p-1 px-3  transition-hover duration-1000 ease-in-out rounded-md"
+                  onClick={chatWithSeller}
                 >
                   <ChatAlt2Icon className="md:w-full h-8 text-red-400 stroke-[1px] md:flex-[0.5]" />
                   <span className="ml-2 md:flex-[1.5]">Chat with a Seller</span>

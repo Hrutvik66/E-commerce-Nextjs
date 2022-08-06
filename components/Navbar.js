@@ -2,10 +2,8 @@ import {
   HomeIcon,
   BellIcon,
   MenuIcon,
-  UserCircleIcon,
   XIcon,
   PlusCircleIcon,
-  ShoppingCartIcon,
   SearchIcon,
   HeartIcon
 } from "@heroicons/react/outline";
@@ -57,7 +55,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex items-center fixed top-0 left-0 z-50 w-screen h-[3.5rem] border-gray-500 border-b-[1px] bg-white">
+    <div className="flex items-center fixed top-0 left-0 z-50 w-screen h-[3.5rem] shadow-md bg-white">
       <ul className="flex justify-between items-center w-full px-[5rem]">
         {/* Logo */}
         <li className="tracking-widest font-bold text-[1.5rem] text-indigo-400">

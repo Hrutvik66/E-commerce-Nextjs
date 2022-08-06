@@ -24,6 +24,7 @@ import {
 import { useAuthState } from "react-firebase-hooks/auth";
 import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import Head from "next/head";
+import NavBottom from "../components/NavBottom";
 
 const SellItems = () => {
   const [data, setData] = useState({
@@ -142,12 +143,13 @@ const SellItems = () => {
   };
 
   return (
-    <div className="p-[5rem] overflow-y-auto">
+    <div className="p-5 py-[5rem] md:p-[5rem] overflow-y-auto">
       <Head>
         <title>Add To Sell</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar />
+      <NavBottom/>
       <div className="flex flex-col space-y-8 border-[1px] rounded border-black h-full p-5">
         <div>
           <h2 className="text-lg font-bold">Sell Items</h2>
@@ -249,10 +251,10 @@ const SellItems = () => {
                 Upload Image
               </label>
               <div className="w-full">
-                <div className="flex justify-evenly">
+                <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-x-3 md:space-y-0">
                   {keys.map((item) => (
                     <div
-                      className="flex items-center justify-center w-[10rem]"
+                      className="flex items-center justify-center w-full md:w-[10rem]"
                       key={item}
                     >
                       <label className="flex flex-col w-full h-32 border-4 border-indigo-400 border-dashed hover:bg-gray-100 hover:border-violet-500">

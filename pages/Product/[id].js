@@ -18,6 +18,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 //toast
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import NavBottom from "../../components/NavBottom";
 
 const Product = ({ item, seller }) => {
   const [link, setLink] = useState("");
@@ -85,6 +86,7 @@ const Product = ({ item, seller }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar />
+      <NavBottom />
       <div className="flex flex-col space-y-10">
         <div className="flex flex-col md:flex-row space-y-5 md:space-x-5 md:space-y-0">
           <Image

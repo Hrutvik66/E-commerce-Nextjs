@@ -26,6 +26,7 @@ import {
 } from "firebase/firestore";
 //HeroIcon
 import { CloudIcon } from "@heroicons/react/outline";
+import NavBottom from "../components/NavBottom";
 
 const Wishlist = ({ items }) => {
   const [user] = useAuthState(auth);
@@ -80,13 +81,14 @@ const Wishlist = ({ items }) => {
 
   return (
     <div
-      className={`p-[1rem] pt-[5rem] md:p-[5rem] bg-gray-200 ${
+      className={`p-[1rem] py-[5rem] md:p-[5rem] bg-gray-200 ${
         wishlistData?.length < 4 ? "h-screen" : "h-full"
       } ${
         wishlist?.length > 0 ? "" : "flex items-center justify-center"
       } overflow-y-auto space-y-3`}
     >
       <Navbar />
+      <NavBottom />
       {wishlist?.length > 0 ? (
         <div className="space-y-4">
           <h1 className="font-bold text-2xl">Wishlist</h1>

@@ -12,16 +12,19 @@ import Link from "next/link";
 
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import NavBottom from "../components/NavBottom";
 
 const Home = ({ items, Types }) => {
   const [loading, setLoading] = useState(false);
   return (
-    <div className="bg-gray-200 h-full overflow-y-auto">
+    <div className="bg-gray-200 h-screen overflow-y-auto">
       <Head>
         <title>Brocher</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar />
+      <NavBottom />
+      <NavBottom/>
       <main className="p-[1rem] py-[5rem] md:p-[5rem] space-y-10">
         {Types.map((product) => {
           return (

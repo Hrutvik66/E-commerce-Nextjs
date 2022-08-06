@@ -64,44 +64,44 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex items-center fixed top-0 left-0 z-30 w-screen h-[3.5rem] shadow-md bg-white">
-      <ul className="flex justify-between items-center w-full px-[5rem]">
+    <div className="flex items-center fixed top-0 left-0 z-30 w-screen h-[3.5rem] shadow-md bg-white ">
+      <ul className="flex justify-between items-center w-full p-[1rem] md:px-[5rem]">
         {/* Logo */}
-        <li className="tracking-widest font-bold text-[1.5rem] text-indigo-400">
-          <Link href="/">BROCHER</Link>
+        <li className="tracking-widest font-bold text-[1.3rem] md:text-[1.5rem] text-indigo-400">
+          <Link href="/">BROKAR</Link>
         </li>
         {/* Navbar Items */}
         <li>
-          <ul className="flex space-x-14">
-            <li>
+          <ul className="flex space-x-7 md:space-x-14">
+            <li className = "hidden md:flex">
               <Tooltip tooltipText="Home">
                 <Link href="/" className="font-light">
                   <HomeIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
                 </Link>
               </Tooltip>
             </li>
-            <li>
+            <li className = "hidden md:flex">
               <Tooltip tooltipText="Notification">
                 <Link href="#">
                   <BellIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
                 </Link>
               </Tooltip>
             </li>
-            <li>
+            <li className = "hidden md:flex">
               <Tooltip tooltipText="Search">
                 <Link href="#">
                   <SearchIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
                 </Link>
               </Tooltip>
             </li>
-            <li>
+            <li className = "hidden md:flex">
               <Tooltip tooltipText="Sell Item">
                 <Link href="/SellItems">
                   <PlusCircleIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
                 </Link>
               </Tooltip>
             </li>
-            <li>
+            <li className = "hidden md:flex">
               <Tooltip tooltipText="Item List">
                 {!isMenuClicked && (
                   <MenuIcon

@@ -14,6 +14,9 @@ import Link from "next/link";
 //auth state change
 import { onAuthStateChanged } from "firebase/auth";
 import Grid from "../components/Grid";
+//toast
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Profile = ({ items }) => {
   const [user] = useAuthState(auth);
@@ -181,6 +184,7 @@ const Profile = ({ items }) => {
             ))}
         </div>
       </div>
+      <ToastContainer/>
     </div>
   );
 };

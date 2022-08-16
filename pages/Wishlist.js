@@ -27,6 +27,8 @@ import {
 //HeroIcon
 import { CloudIcon } from "@heroicons/react/outline";
 import NavBottom from "../components/NavBottom";
+import Head from "next/head";
+import { onAuthStateChanged } from "firebase/auth";
 
 const Wishlist = ({ items }) => {
   const [user] = useAuthState(auth);
@@ -77,7 +79,12 @@ const Wishlist = ({ items }) => {
   };
 
   if (loading) return <Spinner />;
-  if (!user) router.push("/Login");
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      toast.error("Please login to continue");
+      router.push("/Login");
+    }
+  });
 
   return (
     <div
@@ -87,6 +94,10 @@ const Wishlist = ({ items }) => {
         wishlist?.length > 0 ? "" : "flex items-center justify-center"
       } overflow-y-auto space-y-3`}
     >
+      <Head>
+        <title>Wishlist</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <Navbar />
       <NavBottom />
       {wishlist?.length > 0 ? (

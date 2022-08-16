@@ -73,35 +73,35 @@ const Navbar = () => {
         {/* Navbar Items */}
         <li>
           <ul className="flex space-x-7 md:space-x-14">
-            <li className = "hidden md:flex">
+            <li className="hidden md:flex">
               <Tooltip tooltipText="Home">
                 <Link href="/" className="font-light">
                   <HomeIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
                 </Link>
               </Tooltip>
             </li>
-            <li className = "hidden md:flex">
+            <li className="hidden md:flex">
               <Tooltip tooltipText="Notification">
                 <Link href="#">
                   <BellIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
                 </Link>
               </Tooltip>
             </li>
-            <li className = "hidden md:flex">
+            <li className="hidden md:flex">
               <Tooltip tooltipText="Search">
-                <Link href="#">
+                <Link href="/Search">
                   <SearchIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
                 </Link>
               </Tooltip>
             </li>
-            <li className = "hidden md:flex">
+            <li className="hidden md:flex">
               <Tooltip tooltipText="Sell Item">
                 <Link href="/SellItems">
                   <PlusCircleIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
                 </Link>
               </Tooltip>
             </li>
-            <li className = "hidden md:flex">
+            <li className="hidden md:flex">
               <Tooltip tooltipText="Item List">
                 {!isMenuClicked && (
                   <MenuIcon
@@ -178,15 +178,17 @@ const Navbar = () => {
                 >
                   <div className="py-1" role="none">
                     {user ? (
-                      <a
-                        href="#"
+                      <Link
+                        href="/Profile"
                         className="text-gray-700 block px-4 py-2 text-sm cursor-pointer"
                         role="menuitem"
                         tabIndex="-1"
                         id="menu-item-1"
                       >
-                        Account settings
-                      </a>
+                        <span className="hover:bg-gray-200 block px-4 py-2 text-smw-full cursor-pointer">
+                          Account
+                        </span>
+                      </Link>
                     ) : (
                       <Link href="/Login">
                         <span className="text-white block px-4 py-2 text-sm bg-black w-full cursor-pointer">
@@ -196,7 +198,7 @@ const Navbar = () => {
                     )}
                     <button
                       type="submit"
-                      className="text-gray-700 block w-full text-left px-4 py-2 text-sm cursor-pointer"
+                      className="hover:bg-red-500 hover:text-white text-gray-700 block w-full text-left px-4 py-2 text-sm cursor-pointer"
                       role="menuitem"
                       tabindex="-1"
                       id="menu-item-3"

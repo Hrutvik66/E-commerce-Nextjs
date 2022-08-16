@@ -1,7 +1,8 @@
 //React
 import { useState, useEffect } from "react";
 //Nextjs
-import { useRouter } from "next/router";
+import router from "next/router";
+import Head from "next/head";
 //Hero icons
 import { LockClosedIcon } from "@heroicons/react/solid";
 //toastify
@@ -13,17 +14,18 @@ import {
   auth,
   provider,
   signInWithEmailAndPassword,
-  db
+  signInWithRedirect,
+  getRedirectResult,
+  db,
 } from "../lib/firebase";
-import { setDoc,doc } from "firebase/firestore";
+import { setDoc, doc } from "firebase/firestore";
 //React-firebase-hooks
 import { useAuthState } from "react-firebase-hooks/auth";
+import { onAuthStateChanged } from "firebase/auth";
 
 const Login = () => {
-  //router
-  const router = useRouter();
   //react-firebase-hook
-  const [user, loading, error] = useAuthState(auth);
+  const [user] = useAuthState(auth);
   //React States
   const [userData, setUserData] = useState({
     email: "",
@@ -34,11 +36,6 @@ const Login = () => {
     passwordMessage: "",
   });
   const [remember, setRemember] = useState(false);
-
-  useEffect(() => {
-    
-    toast.error("Please Login first");
-   },[])
 
   //* Validations
 
@@ -130,20 +127,16 @@ const Login = () => {
     //   router.push("/SignUp");
     // }
   };
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      router.push("/");
+    } else {
+      toast.error("Please login to continue");
+    }
+  });
   // Handle Google Sign In
-  const handleGoogleSignIn = () => {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        result &&
-          setData() &&
-          router.push("/") &&
-          toast.success("User Loged In successfully 🎉🎉");
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode, errorMessage);
-      });
+  const handleGoogleSignIn = async () => {
+    await signInWithRedirect(auth, provider);
   };
 
   const setData = async () => {
@@ -154,8 +147,13 @@ const Login = () => {
       userName: user.displayName,
     });
   };
+
   return (
     <div className="flex items-center justify-center h-screen p-5">
+      <Head>
+        <title>Login</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <div>
         <div>
           <LockClosedIcon className="mx-auto h-12 w-12 text-green-400" />
@@ -233,7 +231,7 @@ const Login = () => {
           </button>
         </div>
       </div>
-      <ToastContainer/>
+      <ToastContainer />
     </div>
   );
 };

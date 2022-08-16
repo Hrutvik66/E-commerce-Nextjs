@@ -96,7 +96,7 @@ const NavBottom = () => {
           )}
         </li>
         <li>
-          <Link href="#">
+          <Link href="/Search">
             <SearchIcon className="w-full h-10 md:h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
           </Link>
         </li>

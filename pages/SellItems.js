@@ -22,9 +22,10 @@ import {
 
 //react-firebase-hooks
 import { useAuthState } from "react-firebase-hooks/auth";
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { addDoc, arrayUnion, collection, doc, updateDoc } from "firebase/firestore";
 import Head from "next/head";
 import NavBottom from "../components/NavBottom";
+import { onAuthStateChanged } from "firebase/auth";
 
 const SellItems = () => {
   const [data, setData] = useState({
@@ -36,7 +37,7 @@ const SellItems = () => {
     images: [],
   });
 
-  const [user, loading, error] = useAuthState(auth);
+  const [user] = useAuthState(auth);
 
   const [imageFile, setImageFile] = useState([]);
 
@@ -140,8 +141,23 @@ const SellItems = () => {
       images: data.images,
       user: user.uid,
     });
+    handleUser(docRef.id);
   };
 
+  const handleUser = async (id) => {
+    const ref = doc(db, "users", user?.uid);
+    await updateDoc(ref, {
+      sold: arrayUnion(id),
+    });
+    toast.success("Item added successfully for sale");
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      toast.error("Please login to continue");
+      router.push("/Login");
+    }
+  });
   return (
     <div className="p-5 py-[5rem] md:p-[5rem] overflow-y-auto">
       <Head>

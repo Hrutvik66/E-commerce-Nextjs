@@ -11,12 +11,15 @@ import { doc, getDoc, getDocs, collection } from "firebase/firestore";
 import Image from "next/image";
 import Head from "next/head";
 import Link from "next/link";
+import router from "next/router";
 //auth state change
 import { onAuthStateChanged } from "firebase/auth";
 import Grid from "../components/Grid";
 //toast
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+//image
+import ProfilePhoto from "../public/images/default_profile.png";
 
 const Profile = ({ items }) => {
   const [user] = useAuthState(auth);
@@ -60,13 +63,13 @@ const Profile = ({ items }) => {
   const handleStyle = (value) => {
     setOn(value);
   };
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      toast.error("Please login to continue");
-      router.push("/Login");
-    }
-  });
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/Login");
+      }
+    })
+  }, [user]);
   return (
     <div
       className={`p-[1rem] py-[5rem] md:p-[5rem] w-full ${
@@ -83,7 +86,7 @@ const Profile = ({ items }) => {
         <div className="flex flex-col space-y-5 p-3 h-full">
           <Image
             src={
-              user ? user?.photoURL : "/../public/images/default_profile.png"
+              user ? user?.photoURL : ProfilePhoto
             }
             width={200}
             height={200}

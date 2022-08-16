@@ -1,5 +1,7 @@
-//Nextjs
+//nextjs
+import Head from "next/head";
 import Image from "next/image";
+import router from "next/router";
 
 //Hero Icons
 import { UploadIcon } from "@heroicons/react/outline";
@@ -9,7 +11,7 @@ import { useEffect, useState } from "react";
 
 //Components
 import Navbar from "../components/Navbar";
-
+import NavBottom from "../components/NavBottom";
 //firebase
 import {
   storage,
@@ -19,13 +21,20 @@ import {
   auth,
   db,
 } from "../lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 //react-firebase-hooks
 import { useAuthState } from "react-firebase-hooks/auth";
-import { addDoc, arrayUnion, collection, doc, updateDoc } from "firebase/firestore";
-import Head from "next/head";
-import NavBottom from "../components/NavBottom";
-import { onAuthStateChanged } from "firebase/auth";
+import {
+  addDoc,
+  arrayUnion,
+  collection,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
+//toast
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SellItems = () => {
   const [data, setData] = useState({
@@ -65,11 +74,11 @@ const SellItems = () => {
         data.price === "" ||
         imageFile.length < 5
       ) {
-        alert("Please fill in all fields");
+        toast.error("Please fill in all fields");
       } else {
         handleFireBaseUpload(e);
         Promise.all(promises).then(() => {
-          console.log("All files uploaded");
+          toast.success("All files uploaded");
         });
       }
     } catch (error) {
@@ -150,14 +159,14 @@ const SellItems = () => {
       sold: arrayUnion(id),
     });
     toast.success("Item added successfully for sale");
-  }
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      toast.error("Please login to continue");
-      router.push("/Login");
-    }
-  });
+  };
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/Login");
+      }
+    });
+  }, [user]);
   return (
     <div className="p-5 py-[5rem] md:p-[5rem] overflow-y-auto">
       <Head>
@@ -165,7 +174,7 @@ const SellItems = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar />
-      <NavBottom/>
+      <NavBottom />
       <div className="flex flex-col space-y-8 border-[1px] rounded border-black h-full p-5">
         <div>
           <h2 className="text-lg font-bold">Sell Items</h2>
@@ -304,6 +313,7 @@ const SellItems = () => {
           Add To Sell
         </button>
       </div>
+      <ToastContainer />
     </div>
   );
 };

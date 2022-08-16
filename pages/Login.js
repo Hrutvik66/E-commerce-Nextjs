@@ -127,13 +127,13 @@ const Login = () => {
     //   router.push("/SignUp");
     // }
   };
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      router.push("/");
-    } else {
-      toast.error("Please login to continue");
-    }
-  });
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push("/");
+      }
+    });
+  }, []);
   // Handle Google Sign In
   const handleGoogleSignIn = async () => {
     await signInWithRedirect(auth, provider);

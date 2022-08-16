@@ -81,7 +81,6 @@ const Wishlist = ({ items }) => {
   if (loading) return <Spinner />;
   onAuthStateChanged(auth, (user) => {
     if (!user) {
-      toast.error("Please login to continue");
       router.push("/Login");
     }
   });

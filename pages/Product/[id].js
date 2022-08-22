@@ -1,7 +1,7 @@
 // React
 import React, { useEffect,useState } from "react";
 //firestore
-import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
+import { arrayUnion, doc, getDoc, updateDoc,collection,setDoc } from "firebase/firestore";
 //Firebase
 import { db,auth } from "../../lib/firebase";
 //Nextjs
@@ -11,6 +11,7 @@ import Head from "next/head";
 //Components
 import HorizontalGrid from "../../components/HorizontalGrid";
 import Navbar from "../../components/Navbar";
+import Spinner from "../../components/Spinner";
 //HeroIcon
 import { ChatAlt2Icon, HeartIcon } from "@heroicons/react/outline";
 //React-firebase-hooks
@@ -19,13 +20,15 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import NavBottom from "../../components/NavBottom";
+//Profile
+import Profile from "../../public/images/default_profile.png";
 
 const Product = ({ item, seller }) => {
   const [link, setLink] = useState("");
-  const [user, loading, error] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
   const [wishlist, setWishlist] = useState([]);
   const [isWishlisted, setIsWishlisted] = useState(false);
-
+  
   useEffect(() => {
     const getData = async () => {
       if (user) {
@@ -38,7 +41,6 @@ const Product = ({ item, seller }) => {
     };
     getData();
   }, [user]);
-
   useEffect(() => {
     wishlist?.some((element) => {
       if (element === item.id) {
@@ -47,7 +49,7 @@ const Product = ({ item, seller }) => {
     });
   }, [wishlist]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spinner/>;
 
   const handleClick = (value) => {
     setLink(value);
@@ -59,7 +61,7 @@ const Product = ({ item, seller }) => {
         toast.error("Please Login first");
         router.push("/Login");
       } else {
-        const ref = doc(db, "users", item.user);
+        const ref = doc(db, "users", user.uid);
         await updateDoc(ref, {
           cart: arrayUnion(item.id),
         });
@@ -70,9 +72,67 @@ const Product = ({ item, seller }) => {
       toast.error("Error in adding to cart. Please try again later.");
     }
   };
+  const NotifySeller = async (data) => { 
+    try {
+      const ref = doc(db, "users", seller.uid);
+      await updateDoc(ref, {
+        notifications: arrayUnion(data.message),
+      });
+      toast.success("Notification sent to seller");
+    } catch (error) {
+      console.log(error);
+      toast.error("Error in sending notification. Please try again later.");
+    }
+  }
+  const chatWithSeller = async() => {
+    const Confirm = confirm("Are you sure you want to chat with this seller?");
+    if (Confirm) {
+      const isUserExists = async () => {
+        const ref = doc(db, "users", JSON.parse(seller).email);
+        const userRef = await getDoc(ref);
+        if (!userRef.exists) {
+          toast.error("User does not exist");
+          return false;
+        } else return true;
+      };
 
-  const chatWithSeller = () => {
-    
+      let chatid;
+      if (isUserExists()) {
+        const newChatRef = doc(collection(db, "chats"));
+        await setDoc(newChatRef, {
+          users: [user?.email, JSON.parse(seller)?.email],
+        });
+         chatid = newChatRef.id;
+        toast.success("Chat created successfully");
+      }
+
+      const data = {
+        userName: user?.displayName,
+        productName: item.title,
+        email: JSON.parse(seller)?.email,
+        link: `http://localhost:3000/Chat/${chatid}`,
+        message: `Hey there, Our customer ${user?.displayName} is interested in your product ${item.name}. He want to chat with you.`,
+      }
+
+      fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }).then((res) => {
+          console.log('Response received')
+          if (res.status === 200) {
+            console.log('Response succeeded!')
+            toast.success("Message sent successfully");
+            NotifySeller(data);
+            router.push("/Chat/" + chatid)
+          }
+      })
+    } else {
+      toast.error("Chat creation cancelled");
+    }
   }
 
   return (
@@ -132,13 +192,13 @@ const Product = ({ item, seller }) => {
               <hr className="bg-gray-200 w-full" />
               <div className="flex space-x-4 items-center">
                 <Image
-                  src={seller.photoURL}
+                  src={seller ? JSON.parse(seller)?.photoURL : Profile}
                   height={60}
                   width={60}
-                  alt={seller.userName}
+                  alt={JSON.parse(seller)?.userName}
                   className="rounded-full"
                 />
-                <h3 className="font-semibold text-lg">{seller?.userName}</h3>
+                <h3 className="font-semibold text-lg">{JSON.parse(seller)?.userName}</h3>
               </div>
             </div>
           </div>
@@ -225,6 +285,6 @@ export async function getServerSideProps(context) {
   };
 
   return {
-    props: { item: item, seller: seller },
+    props: { item: item, seller: JSON.stringify(seller) },
   };
 }

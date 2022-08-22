@@ -130,6 +130,7 @@ const Login = () => {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        setData(user);
         router.push("/");
       }
     });
@@ -139,12 +140,11 @@ const Login = () => {
     await signInWithRedirect(auth, provider);
   };
 
-  const setData = async () => {
-    const data = user;
+  const setData = async (data) => {
     await setDoc(doc(db, "users", data?.uid), {
-      email: user.email,
-      photoURL: user.photoURL,
-      userName: user.displayName,
+      email: data?.email,
+      photoURL: data?.photoURL,
+      userName: data?.displayName,
     });
   };
 

@@ -34,7 +34,7 @@ const Profile = ({ items }) => {
         const ref = doc(db, "users", user?.uid);
         const userRef = await getDoc(ref);
 
-        const cart = userRef.data().cart;
+        const cart = userRef.data()?.cart;
         setWishlist(cart);
       }
     };
@@ -47,7 +47,7 @@ const Profile = ({ items }) => {
         let data = [];
 
         items.filter((product) => {
-          wishlist.forEach((item) => {
+          wishlist?.forEach((item) => {
             if (item === product.id) {
               data.push(product);
             }
@@ -73,7 +73,7 @@ const Profile = ({ items }) => {
   return (
     <div
       className={`p-[1rem] py-[5rem] md:p-[5rem] w-full ${
-        wishlist.length > 0 && on == 2 ? "h-full" : "h-screen"
+        wishlist?.length > 0 && on == 2 ? "h-full" : "h-screen"
       } bg-gray-200`}
     >
       <Head>
@@ -127,7 +127,7 @@ const Profile = ({ items }) => {
             <div className="flex flex-col space-y-5">
               <div className="flex justify-between">
                 <h1 className="text-xl font-bold">Number of Your Items</h1>
-                <h1 className="text-2xl">{wishlist.length}</h1>
+                <h1 className="text-2xl">{wishlist ? wishlist?.length : "0"}</h1>
               </div>
               <div className="flex justify-between">
                 <h1 className="text-xl font-bold">

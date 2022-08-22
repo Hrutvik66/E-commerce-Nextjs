@@ -20,7 +20,12 @@ const Search = () => {
           placeholder="Search"
           className="rounded p-4 bg-gray-200 w-[40rem]"
         />
-        <button className = "px-[2rem] bg-red-600 rounded text-white" onClick={searchItem}>Search</button>
+        <button
+          className="px-[2rem] bg-red-600 rounded text-white"
+          onClick={searchItem}
+        >
+          Search
+        </button>
       </div>
     </div>
   );

@@ -140,7 +140,6 @@ const SellItems = () => {
   }, [data.images]);
 
   const setItemData = async () => {
-    console.log(data);
     const docRef = await addDoc(collection(db, "items"), {
       title: data.title,
       type: data.type,

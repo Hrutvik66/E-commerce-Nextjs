@@ -127,7 +127,7 @@ const Profile = ({ items }) => {
             <div className="flex flex-col space-y-5">
               <div className="flex justify-between">
                 <h1 className="text-xl font-bold">Number of Your Items</h1>
-                <h1 className="text-2xl">{wishlist ? wishlist?.length : "0"}</h1>
+                <h1 className="text-2xl">{wishlist?.length > 0 ? wishlist?.length : "0"}</h1>
               </div>
               <div className="flex justify-between">
                 <h1 className="text-xl font-bold">

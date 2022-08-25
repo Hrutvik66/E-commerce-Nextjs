@@ -34,7 +34,7 @@ const Friends = ({ id, users }) => {
   }, [RecipientEmail]);
 
   const getChat = () => {
-    Router.push(`/chat/${id}`);
+    Router.push(`/Chat/${id}`);
   };
 
   return (

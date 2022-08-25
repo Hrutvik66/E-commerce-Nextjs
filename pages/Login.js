@@ -145,6 +145,7 @@ const Login = () => {
       email: data?.email,
       photoURL: data?.photoURL,
       userName: data?.displayName,
+      Notifications : 0,
     });
   };
 

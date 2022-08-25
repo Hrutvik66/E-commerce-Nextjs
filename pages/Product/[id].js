@@ -1,9 +1,19 @@
 // React
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 //firestore
-import { arrayUnion, doc, getDoc, updateDoc,collection,setDoc } from "firebase/firestore";
+import {
+  arrayUnion,
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  setDoc,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 //Firebase
-import { db,auth } from "../../lib/firebase";
+import { db, auth } from "../../lib/firebase";
 //Nextjs
 import Image from "next/image";
 import router from "next/router";
@@ -18,17 +28,20 @@ import { ChatAlt2Icon, HeartIcon } from "@heroicons/react/outline";
 import { useAuthState } from "react-firebase-hooks/auth";
 //toast
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import NavBottom from "../../components/NavBottom";
 //Profile
 import Profile from "../../public/images/default_profile.png";
+//lib
+import getRecipientUser from "../../lib/getRecipientUser";
 
 const Product = ({ item, seller }) => {
   const [link, setLink] = useState("");
   const [user, loading] = useAuthState(auth);
   const [wishlist, setWishlist] = useState([]);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  
+  const [chats, setChats] = useState([]);
+
   useEffect(() => {
     const getData = async () => {
       if (user) {
@@ -41,6 +54,30 @@ const Product = ({ item, seller }) => {
     };
     getData();
   }, [user]);
+
+  useEffect(() => {
+    const getChats = async () => {
+      if (user) {
+        const chatRef = collection(db, "chats");
+        const q = query(chatRef, where("users", "array-contains", user.email));
+        const querySnapshot = await getDocs(q);
+
+        const data = [
+          ...new Set(
+            querySnapshot?.docs?.map((doc) => {
+              return {
+                id: doc.id,
+                ...doc.data(),
+              };
+            })
+          ),
+        ];
+        setChats(data);
+      }
+    };
+    getChats();
+  }, [user]);
+
   useEffect(() => {
     wishlist?.some((element) => {
       if (element === item.id) {
@@ -49,7 +86,7 @@ const Product = ({ item, seller }) => {
     });
   }, [wishlist]);
 
-  if (loading) return <Spinner/>;
+  if (loading) return <Spinner />;
 
   const handleClick = (value) => {
     setLink(value);
@@ -72,19 +109,24 @@ const Product = ({ item, seller }) => {
       toast.error("Error in adding to cart. Please try again later.");
     }
   };
-  const NotifySeller = async (data) => { 
+  const NotifySeller = async (data) => {
     try {
-      const ref = doc(db, "users", seller.uid);
-      await updateDoc(ref, {
-        notifications: arrayUnion(data.message),
+      const ref = doc(db, "users", JSON.parse(seller)?.id);
+      var date = new Date();
+      const newDoc = doc(collection(ref, "notification"));
+      await setDoc(newDoc, {
+        message: data.message,
+        time: date.getHours() + ":" + date.getMinutes(),
+        link: data.link,
+        isClicked: false,
       });
       toast.success("Notification sent to seller");
     } catch (error) {
       console.log(error);
       toast.error("Error in sending notification. Please try again later.");
     }
-  }
-  const chatWithSeller = async() => {
+  };
+  const chatWithSeller = async () => {
     const Confirm = confirm("Are you sure you want to chat with this seller?");
     if (Confirm) {
       const isUserExists = async () => {
@@ -97,43 +139,63 @@ const Product = ({ item, seller }) => {
       };
 
       let chatid;
+      const isChatExist = () => {
+        for (var i = 0; i < chats.length; i++){
+          const receiver = getRecipientUser(chats[i].users, user);
+          if (JSON.parse(seller)?.email === receiver) {
+            return true;
+          }
+        }
+        return false;
+      };
+
       if (isUserExists()) {
-        const newChatRef = doc(collection(db, "chats"));
-        await setDoc(newChatRef, {
-          users: [user?.email, JSON.parse(seller)?.email],
-        });
-         chatid = newChatRef.id;
-        toast.success("Chat created successfully");
+        if (isChatExist()) {
+          toast.error("Chat already exist.");
+        } else {
+          const newChatRef = doc(collection(db, "chats"));
+          await setDoc(newChatRef, {
+            users: [user?.email, JSON.parse(seller).email],
+          });
+          chatid = newChatRef.id;
+          toast.success("Chat created successfully 🎉");
+        }
       }
+      // if (isUserExists()) {
+      //   const newChatRef = doc(collection(db, "chats"));
+      //   await setDoc(newChatRef, {
+      //     users: [user?.email, JSON.parse(seller)?.email],
+      //   });
+      //   chatid = newChatRef.id;
+      //   toast.success("Chat created successfully");
+      // }
 
       const data = {
         userName: user?.displayName,
         productName: item.title,
         email: JSON.parse(seller)?.email,
-        link: `http://localhost:3000/Chat/${chatid}`,
-        message: `Hey there, Our customer ${user?.displayName} is interested in your product ${item.name}. He want to chat with you.`,
-      }
+        link: `https://e-commerce-nextjs-gray.vercel.app/Chat/${chatid}`,
+        message: `Hey there, Our customer ${user?.displayName} is interested in your product ${item.title}. He want to chat with you.`,
+      };
 
-      fetch('/api/contact', {
-        method: 'POST',
+      fetch("/api/contact", {
+        method: "POST",
         headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       }).then((res) => {
-          console.log('Response received')
-          if (res.status === 200) {
-            console.log('Response succeeded!')
-            toast.success("Message sent successfully");
-            NotifySeller(data);
-            router.push("/Chat/" + chatid)
-          }
-      })
+        if (res.status === 200) {
+          toast.success("Message sent successfully");
+          NotifySeller(data);
+          router.push("/Chat");
+        }
+      });
     } else {
       toast.error("Chat creation cancelled");
     }
-  }
+  };
 
   return (
     <div
@@ -198,7 +260,9 @@ const Product = ({ item, seller }) => {
                   alt={JSON.parse(seller)?.userName}
                   className="rounded-full"
                 />
-                <h3 className="font-semibold text-lg">{JSON.parse(seller)?.userName}</h3>
+                <h3 className="font-semibold text-lg">
+                  {JSON.parse(seller)?.userName}
+                </h3>
               </div>
             </div>
           </div>
@@ -264,7 +328,7 @@ const Product = ({ item, seller }) => {
           )}
         </div>
       </div>
-      <ToastContainer/>
+      <ToastContainer />
     </div>
   );
 };
@@ -277,7 +341,10 @@ export async function getServerSideProps(context) {
 
   const sellerRef = doc(db, "users", itemRef.data().user);
   const userRef = await getDoc(sellerRef);
-  const seller = userRef.data();
+  const seller = {
+    id: userRef.id,
+    ...userRef.data(),
+  };
 
   const item = {
     id: itemRef.id,

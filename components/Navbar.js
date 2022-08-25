@@ -2,11 +2,12 @@
 import {
   HomeIcon,
   BellIcon,
-  MenuIcon,
   XIcon,
   PlusCircleIcon,
   SearchIcon,
   HeartIcon,
+  ChatAlt2Icon,
+  AdjustmentsIcon,
 } from "@heroicons/react/outline";
 //React
 import { useEffect, useState } from "react";
@@ -19,7 +20,7 @@ import Tooltip from "./Tooltip";
 //react-firebase-hook
 import { useAuthState } from "react-firebase-hooks/auth";
 //firebase
-import { auth } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
 //Auth
 import { signOut } from "firebase/auth";
 //Toastify
@@ -27,11 +28,29 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 //Image
 import Profile from "../public/images/default_profile.png";
+//firebase
+import { doc, getDocs, collection, getDoc } from "firebase/firestore";
 
 const Navbar = () => {
   const [isMenuClicked, setIsMenuClicked] = useState(false);
   const [isAccountClicked, setIsAccountClicked] = useState(false);
   const [user] = useAuthState(auth);
+  const [numberNotify, setNumberNotify] = useState(Number);
+  const [numberNotifyUser, setNumberNotifyUser] = useState(Number);
+  useEffect(() => {
+    const getData = async () => {
+      if (user) {
+        const ref = doc(db, "users", user?.uid);
+
+        const userRef = await getDoc(ref);
+        setNumberNotifyUser(userRef?.data().Notifications);
+
+        const NotifyRef = await getDocs(collection(ref, "notification"));
+        setNumberNotify(NotifyRef?.docs.length);
+      }
+    };
+    getData();
+  }, [user]);
 
   const List = [
     {
@@ -65,14 +84,14 @@ const Navbar = () => {
 
   return (
     <div className="flex items-center fixed top-0 left-0 z-30 w-screen h-[3.5rem] shadow-md bg-white ">
-      <ul className="flex justify-between items-center w-full p-[1rem] md:px-[5rem]">
+      <ul className="flex justify-between items-center w-full p-[1rem] px-[2rem] md:px-[3rem]">
         {/* Logo */}
         <li className="tracking-widest font-bold text-[1.3rem] md:text-[1.5rem] text-indigo-400">
           <Link href="/">BROKAR</Link>
         </li>
         {/* Navbar Items */}
         <li>
-          <ul className="flex space-x-7 md:space-x-14">
+          <ul className="flex space-x-7 md:space-x-8">
             <li className="hidden md:flex">
               <Tooltip tooltipText="Home">
                 <Link href="/" className="font-light">
@@ -82,9 +101,15 @@ const Navbar = () => {
             </li>
             <li className="hidden md:flex">
               <Tooltip tooltipText="Notification">
-                <Link href="#">
+                <Link href="/Notification">
                   <BellIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
                 </Link>
+                {(numberNotify > numberNotifyUser) && (
+                    <div>
+                      <div className="w-[0.7rem] h-[0.7rem] bg-red-600 absolute rounded-full top-1 right-1 ring-1 z-50 ring-white"></div>
+                      <div className="w-[0.7rem] h-[0.7rem] bg-gray-400 absolute rounded-full top-[0.24rem] right-[0.24rem] animate-ping transition-all duration-700 ease-in-out -z-1"></div>{" "}
+                    </div>
+                  )}
               </Tooltip>
             </li>
             <li className="hidden md:flex">
@@ -104,7 +129,7 @@ const Navbar = () => {
             <li className="hidden md:flex">
               <Tooltip tooltipText="Item List">
                 {!isMenuClicked && (
-                  <MenuIcon
+                  <AdjustmentsIcon
                     className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer transition-all duration-3000"
                     onClick={() => setIsMenuClicked(!isMenuClicked)}
                     id="menu-icon"
@@ -147,6 +172,13 @@ const Navbar = () => {
                     </div>
                   </div>
                 )}
+              </Tooltip>
+            </li>
+            <li>
+              <Tooltip tooltipText="Chat">
+                <Link href="/Chat">
+                  <ChatAlt2Icon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
+                </Link>
               </Tooltip>
             </li>
             <li>

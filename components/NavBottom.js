@@ -7,6 +7,7 @@ import {
   PlusCircleIcon,
   SearchIcon,
   HeartIcon,
+  AdjustmentsIcon,
 } from "@heroicons/react/outline";
 //React
 import { useEffect, useState } from "react";
@@ -40,7 +41,7 @@ const NavBottom = () => {
           </Link>
         </li>
         <li>
-          <Link href="#">
+          <Link href="/Notification">
             <BellIcon className="w-full h-10 md:h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
           </Link>
         </li>
@@ -51,7 +52,7 @@ const NavBottom = () => {
         </li>
         <li>
           {!isMenuClicked && (
-            <MenuIcon
+            <AdjustmentsIcon
               className="w-full h-10 md:h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer transition-all duration-3000"
               onClick={() => setIsMenuClicked(!isMenuClicked)}
               id="menu-icon"

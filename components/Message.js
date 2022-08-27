@@ -1,5 +1,5 @@
 import { TrashIcon } from "@heroicons/react/outline";
-// import moment from 'moment';
+import moment from 'moment';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../lib/firebase";
 import { doc, deleteDoc } from "firebase/firestore";
@@ -19,18 +19,18 @@ const Message = ({ user, message }) => {
         >
           <p> {message?.message}</p>
           <p className="text-right text-[10px]">
-            {/* {message?.timestamp
+            {message?.timestamp
               ? moment(message?.timestamp).format('LT')
-              : '...'} */}
+              : '...'}
           </p>
         </div>
       ) : (
         <div className="m-2 ml-0 w-fit min-w-[5rem] rounded-b-lg rounded-tr-lg bg-gray-300 p-2">
           <p>{message?.message}</p>
           <p className="text-right text-[10px]">
-            {/* {message?.timestamp
+            {message?.timestamp
               ? moment(message?.timestamp).format('LT')
-              : '...'} */}
+              : '...'}
           </p>
         </div>
       )}

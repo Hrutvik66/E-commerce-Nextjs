@@ -2,20 +2,52 @@ import Head from "next/head";
 import Image from "next/image";
 import Navbar from "../components/Navbar";
 import HorizontalGrid from "../components/HorizontalGrid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import Link from "next/link";
 
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
 import NavBottom from "../components/NavBottom";
+import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
+import { useAuthState } from "react-firebase-hooks/auth";
+import Spinner from "../components/Spinner";
 
 const Home = ({ items, Types }) => {
-  const [loading, setLoading] = useState(false);
+  const [user, loading] = useAuthState(auth);
+  useEffect(() => {
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      let email = window.localStorage.getItem("emailForSignIn");
+      if (!email) {
+        email = window.prompt("Please provide your email for confirmation");
+      }
+      // The client SDK will parse the code from the link for you.
+      signInWithEmailLink(auth, email, window.location.href)
+        .then((result) => {
+          // Clear email from storage.
+          window.localStorage.removeItem("emailForSignIn");
+          // You can access the new user via result.user
+          console.log(result.user);
+          // Additional user info profile not available via:
+          // result.additionalUserInfo.profile == null
+          // You can check if the user is new or existing:
+          if (result.additionalUserInfo.isNewUser) {
+            setData(result.user);
+          } else {
+            toast.success("Log in success");
+          }
+        })
+        .catch((error) => {
+          // Some error occurred, you can inspect the code: error.code
+          // Common errors could be invalid email and invalid or expired OTPs.
+          console.log(error);
+        });
+    }
+  }, []);
+  if (loading) return <Spinner />;
   return (
     <div className="bg-gray-200 h-screen overflow-y-auto">
       <Head>
@@ -24,7 +56,7 @@ const Home = ({ items, Types }) => {
       </Head>
       <Navbar />
       <NavBottom />
-      <NavBottom/>
+      <NavBottom />
       <main className="p-[1rem] py-[5rem] md:p-[5rem] space-y-10">
         {Types.map((product) => {
           return (
@@ -64,7 +96,7 @@ const Home = ({ items, Types }) => {
           );
         })}
       </main>
-      <ToastContainer/>
+      <ToastContainer />
     </div>
   );
 };

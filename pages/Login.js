@@ -158,6 +158,7 @@ const Login = () => {
             type="submit"
             className="w-full flex items-center justify-around bg-indigo-700 p-2 rounded-md text-white focus:ring ring-indigo-500 ring-offset-2 hover:text-blue-600 hover:bg-white hover:border-[2px] transition-all duration-700 ease-in-out border-blue-600"
             onClick={handleSubmit}
+            id="loginButton"
           >
             <MailIcon className="h-8 w-8" />
             Log in with Email link
@@ -167,6 +168,7 @@ const Login = () => {
             type="button"
             className="w-full bg-white border-[1.5px] border-black p-2 rounded-md flex items-center justify-around focus:ring ring-indigo-500 ring-offset-2 hover:border-blue-600 transition-all duration-700 ease-in-out"
             onClick={handleGoogleSignIn}
+            id="googleButton"
           >
             <img
               src="../../images/google.png"

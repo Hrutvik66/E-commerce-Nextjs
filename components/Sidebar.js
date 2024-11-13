@@ -31,29 +31,55 @@ import Profile from "../public/images/default_profile.png";
 import getRecipientUser from "../lib/getRecipientUser";
 
 const Sidebar = () => {
-  const [user, loading] = useAuthState(auth);
+  const [user, loading, error] = useAuthState(auth);
   const [searchedUserInfo, setSearchedUserInfo] = useState([]);
   const [chats, setChats] = useState([]);
   const Router = useRouter();
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error.message);
+    }
+  }, [error]);
 
   useEffect(() => {
     const getChats = async () => {
       if (user) {
         const chatRef = collection(db, "chats");
         const q = query(chatRef, where("users", "array-contains", user?.email));
-        const querySnapshot = await getDocs(q);
+        try {
+          const querySnapshot = await getDocs(q);
 
-        const data = [
-          ...new Set(
-            querySnapshot?.docs?.map((doc) => {
-              return {
-                id: doc.id,
-                ...doc.data(),
-              };
-            })
-          ),
-        ];
-        setChats(data);
+          const data = [
+            ...new Set(
+              querySnapshot?.docs?.map((doc) => {
+                return {
+                  id: doc.id,
+                  ...doc.data(),
+                };
+              })
+            ),
+          ];
+          console.log(data);
+
+          // check for empty objects and remove them
+          data.forEach((chat) => {
+            if (Object.keys(chat).length === 0) {
+              data.splice(data.indexOf(chat), 1);
+            }
+          });
+
+          // check for same users are in same room
+          data.forEach((chat, index) => {
+            if (chat.users.length === 2 && chat.users[0] == chat.users[1]) {
+              data.splice(index, 1);
+            }
+          });
+
+          setChats(data);
+        } catch (error) {
+          toast.error(error.message);
+        }
       }
     };
     getChats();
@@ -75,7 +101,7 @@ const Sidebar = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <Image
-          src={user ? user?.photoURL : Profile}
+          src={user?.photoURL || Profile}
           alt="Profile-image"
           className="cursor-pointer rounded-full hover:opacity-50"
           onClick={() => {

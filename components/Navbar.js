@@ -1,253 +1,146 @@
-// HeroIcon
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { signOut } from "firebase/auth";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   HomeIcon,
   BellIcon,
-  XIcon,
   PlusCircleIcon,
-  SearchIcon,
   HeartIcon,
   ChatAlt2Icon,
-  AdjustmentsIcon,
 } from "@heroicons/react/outline";
-//React
-import { useEffect, useState } from "react";
-//Nextjs
-import Link from "next/link";
-import Image from "next/image";
-import router from "next/router";
-//Components
-import Tooltip from "./Tooltip";
-//react-firebase-hook
-import { useAuthState } from "react-firebase-hooks/auth";
-//firebase
+
 import { auth, db } from "../lib/firebase";
-//Auth
-import { signOut } from "firebase/auth";
-//Toastify
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-//Image
-import Profile from "../public/images/default_profile.png";
-//firebase
 import { doc, getDocs, collection, getDoc } from "firebase/firestore";
 
+import Tooltip from "./Tooltip";
+import Profile from "../public/images/default_profile.png";
+
 const Navbar = () => {
-  const [isMenuClicked, setIsMenuClicked] = useState(false);
-  const [isAccountClicked, setIsAccountClicked] = useState(false);
   const [user] = useAuthState(auth);
-  const [numberNotify, setNumberNotify] = useState(Number);
-  const [numberNotifyUser, setNumberNotifyUser] = useState(Number);
+  const [numberNotify, setNumberNotify] = useState(0);
+  const [numberNotifyUser, setNumberNotifyUser] = useState(0);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const router = useRouter();
+
   useEffect(() => {
     const getData = async () => {
       if (user) {
-        const ref = doc(db, "users", user?.uid);
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        setNumberNotifyUser(userSnap.data()?.Notifications || 0);
 
-        const userRef = await getDoc(ref);
-        setNumberNotifyUser(userRef?.data().Notifications);
-
-        const NotifyRef = await getDocs(collection(ref, "notification"));
-        setNumberNotify(NotifyRef?.docs.length);
+        const notifySnap = await getDocs(collection(userRef, "notification"));
+        setNumberNotify(notifySnap.size);
       }
     };
     getData();
   }, [user]);
 
-  const List = [
-    {
-      name: "Electronic",
-      link: "/Electronic",
-    },
-  ];
-
-  const Account_items = [
-    {
-      name: "Account",
-      link: "/Account",
-    },
-    {
-      name: "Log Out",
-    },
-  ];
-
-  const Signout = () => {
-    signOut(auth)
-      .then(() => {
-        // Sign-out successful.
-        router.push("/");
-        toast.success("User signed out successfully");
-      })
-      .catch((error) => {
-        // An error happened.
-        toast.error("Error in signing out of the application");
-      });
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push("/");
+      toast.success("Signed out successfully");
+    } catch (error) {
+      toast.error("Error signing out");
+    }
   };
 
   return (
-    <div className="flex items-center fixed top-0 left-0 z-30 w-screen h-[3.5rem] shadow-md bg-white ">
-      <ul className="flex justify-between items-center w-full p-[1rem] px-[2rem] md:px-[3rem]">
-        {/* Logo */}
-        <li className="tracking-widest font-bold text-[1.3rem] md:text-[1.5rem] text-indigo-400">
-          <Link href="/">BROKAR</Link>
-        </li>
-        {/* Navbar Items */}
-        <li>
-          <ul className="flex space-x-7 md:space-x-8">
-            <li className="hidden md:flex">
-              <Tooltip tooltipText="Home">
-                <Link href="/" className="font-light">
-                  <HomeIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
-                </Link>
-              </Tooltip>
-            </li>
-            <li className="hidden md:flex">
-              <Tooltip tooltipText="Notification">
-                <Link href="/Notification">
-                  <BellIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
-                </Link>
-                {(numberNotify > numberNotifyUser) && (
-                    <div>
-                      <div className="w-[0.7rem] h-[0.7rem] bg-red-600 absolute rounded-full top-1 right-1 ring-1 z-50 ring-white"></div>
-                      <div className="w-[0.7rem] h-[0.7rem] bg-gray-400 absolute rounded-full top-[0.24rem] right-[0.24rem] animate-ping transition-all duration-700 ease-in-out -z-1"></div>{" "}
-                    </div>
-                  )}
-              </Tooltip>
-            </li>
-            <li className="hidden md:flex">
-              <Tooltip tooltipText="Search">
-                <Link href="/Search">
-                  <SearchIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
-                </Link>
-              </Tooltip>
-            </li>
-            <li className="hidden md:flex">
-              <Tooltip tooltipText="Sell Item">
-                <Link href="/SellItems">
-                  <PlusCircleIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
-                </Link>
-              </Tooltip>
-            </li>
-            <li className="hidden md:flex">
-              <Tooltip tooltipText="Item List">
-                {!isMenuClicked && (
-                  <AdjustmentsIcon
-                    className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer transition-all duration-3000"
-                    onClick={() => setIsMenuClicked(!isMenuClicked)}
-                    id="menu-icon"
-                  />
-                )}
-                {isMenuClicked && (
-                  <XIcon
-                    className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer"
-                    onClick={() => setIsMenuClicked(!isMenuClicked)}
-                    id="menu-icon"
-                  />
-                )}
-                {isMenuClicked && (
-                  <div
-                    className="origin-top-right absolute top-[105%] right-[-4rem] w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none transition-all duration-150"
-                    role="menu"
-                    aria-orientation="vertical"
-                    aria-labelledby="menu-icon"
-                    tabIndex="-1"
-                  >
-                    <div className="py-1" role="none">
-                      <a
-                        href="#"
-                        className="text-gray-700 block px-4 py-2 text-sm"
-                        role="menuitem"
-                        tabindex="-1"
-                        id="menu-item-0"
-                      >
-                        Electronic
-                      </a>
-                      <a
-                        href="#"
-                        className="text-gray-700 block px-4 py-2 text-sm"
-                        role="menuitem"
-                        tabindex="-1"
-                        id="menu-item-2"
-                      >
-                        Books
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </Tooltip>
-            </li>
-            <li>
-              <Tooltip tooltipText="Chat">
-                <Link href="/Chat">
-                  <ChatAlt2Icon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
-                </Link>
-              </Tooltip>
-            </li>
-            <li>
-              <Tooltip tooltipText="Wishlist">
-                <Link href="/Wishlist">
-                  <HeartIcon className="w-full h-8 text-violet-400 stroke-[1px] hover:text-violet-600 cursor-pointer" />
-                </Link>
-              </Tooltip>
-            </li>
-            {/* Profile */}
-            <li>
-              <Image
-                src={user ? user.photoURL : Profile}
-                width={32}
-                height={32}
-                className={`rounded-full cursor-pointer ${
-                  user ? "" : "animate-bounce"
-                }`}
-                alt="profile"
-                onClick={() => setIsAccountClicked(!isAccountClicked)}
+    <nav className="fixed top-0 left-0 right-0 z-30 bg-white shadow-md">
+      <div className="mx-auto px-4 sm:px-6 lg:px-20">
+        <div className="flex justify-between h-16">
+          <div className="flex-shrink-0 flex items-center">
+            <Link href="/" className="text-2xl font-bold text-indigo-600">
+              BROKAR
+            </Link>
+          </div>
+          <div className="flex items-center">
+            <div className="hidden md:flex space-x-8">
+              <NavItem href="/" icon={HomeIcon} tooltip="Home" />
+              <NavItem
+                href="/Notification"
+                icon={BellIcon}
+                tooltip="Notifications"
+                badge={numberNotify > numberNotifyUser}
               />
-              {isAccountClicked && (
-                <div
-                  className="origin-top-right absolute top-[105%] right-[1rem] w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none transition-all duration-150"
-                  role="menu"
-                  aria-orientation="vertical"
-                  aria-labelledby="menu-icon"
-                  tabIndex="-1"
+              <NavItem
+                href="/SellItems"
+                icon={PlusCircleIcon}
+                tooltip="Sell Item"
+              />
+              <NavItem href="/Chat" icon={ChatAlt2Icon} tooltip="Chat" />
+              <NavItem href="/Wishlist" icon={HeartIcon} tooltip="Wishlist" />
+            </div>
+            <div className="ml-4 relative flex-shrink-0">
+              <div>
+                <button
+                  onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+                  className="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  <div className="py-1" role="none">
-                    {user ? (
+                  <Image
+                    src={user?.photoURL || Profile}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                    alt="Profile"
+                  />
+                </button>
+              </div>
+              {isAccountMenuOpen && (
+                <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  {user ? (
+                    <>
                       <Link
                         href="/Profile"
-                        className="text-gray-700 block px-4 py-2 text-sm cursor-pointer"
-                        role="menuitem"
-                        tabIndex="-1"
-                        id="menu-item-1"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
-                        <span className="hover:bg-gray-200 block px-4 py-2 text-smw-full cursor-pointer">
-                          Account
-                        </span>
+                        Account
                       </Link>
-                    ) : (
-                      <Link href="/Login">
-                        <span className="text-white block px-4 py-2 text-sm bg-black w-full cursor-pointer">
-                          Log in
-                        </span>
-                      </Link>
-                    )}
-                    <button
-                      type="submit"
-                      className="hover:bg-red-500 hover:text-white text-gray-700 block w-full text-left px-4 py-2 text-sm cursor-pointer"
-                      role="menuitem"
-                      tabindex="-1"
-                      id="menu-item-3"
-                      onClick={Signout}
+                      <button
+                        onClick={handleSignOut}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Sign out
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      href="/Login"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Sign out
-                    </button>
-                  </div>
+                      Log in
+                    </Link>
+                  )}
                 </div>
               )}
-            </li>
-          </ul>
-        </li>
-      </ul>
+            </div>
+          </div>
+        </div>
+      </div>
       <ToastContainer />
-    </div>
+    </nav>
   );
 };
+
+const NavItem = ({ href, icon: Icon, tooltip, badge }) => (
+  <Tooltip tooltipText={tooltip}>
+    <Link href={href} className="text-gray-600 hover:text-indigo-600">
+      <div className="relative">
+        <Icon className="w-8 h-8" />
+        {badge && (
+          <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white" />
+        )}
+      </div>
+    </Link>
+  </Tooltip>
+);
 
 export default Navbar;

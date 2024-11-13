@@ -1,16 +1,16 @@
 //helper function in lib
-import getRecipientUser from '../lib/getRecipientUser';
+import getRecipientUser from "../lib/getRecipientUser";
 //component
-import Avatar from './Avatar';
+import Avatar from "./Avatar";
 //react firebase hook
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { useAuthState } from "react-firebase-hooks/auth";
 //firebase
-import { auth, db } from '../lib/firebase';
-import { collection, where, getDocs, query } from 'firebase/firestore';
+import { auth, db } from "../lib/firebase";
+import { collection, where, getDocs, query } from "firebase/firestore";
 //nextjs
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
 //reactjs
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 const Friends = ({ id, users }) => {
   const Router = useRouter();
@@ -21,20 +21,26 @@ const Friends = ({ id, users }) => {
   const [userInfo, setUserInfo] = useState([]);
   useEffect(() => {
     const getUserData = async () => {
-      const q = query(
-        collection(db, 'users'),
-        where('email', '==', RecipientEmail)
-      );
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        setUserInfo([doc.data()]);
-      });
+      if (RecipientEmail) {
+        const q = query(
+          collection(db, "users"),
+          where("email", "==", RecipientEmail)
+        );
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          setUserInfo([doc.data()]);
+        });
+      }
     };
-    getUserData();
+    getUserData().catch((error) => {
+      console.error("Error getting user data:", error);
+    });
   }, [RecipientEmail]);
 
   const getChat = () => {
-    Router.push(`/Chat/${id}`);
+    if (id) {
+      Router.push(`/Chat/${id}`);
+    }
   };
 
   return (
@@ -42,8 +48,8 @@ const Friends = ({ id, users }) => {
       className="flex cursor-pointer items-center space-x-5 p-3 pl-2 pr-10 hover:bg-slate-100 transition ease-in-out duration-600"
       onClick={getChat}
     >
-      <Avatar email={RecipientEmail} />
-      <h1>{userInfo[0]?.userName}</h1>
+      {RecipientEmail && <Avatar email={RecipientEmail} />}
+      {userInfo.length > 0 && <h1>{userInfo[0]?.userName}</h1>}
     </div>
   );
 };

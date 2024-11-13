@@ -18,6 +18,7 @@ import {
   onAuthStateChanged,
   sendSignInLinkToEmail,
   signInWithEmailLink,
+  signInWithPopup,
 } from "firebase/auth";
 
 const Login = () => {
@@ -113,7 +114,7 @@ const Login = () => {
 
   // Handle Google Sign In
   const handleGoogleSignIn = async () => {
-    await signInWithRedirect(auth, provider);
+    await signInWithPopup(auth, provider);
   };
 
   const setData = async (data) => {
